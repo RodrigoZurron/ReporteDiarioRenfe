@@ -33,18 +33,26 @@ h1 { font-size:26px; font-weight:700; letter-spacing:-.4px; }
 .section-head { display:flex; align-items:center; gap:9px; margin-bottom:14px; padding-bottom:9px; border-bottom:1.5px solid #e8e6e0; }
 .section-head h2 { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#444441; }
 .snum { width:20px; height:20px; background:#1a1a18; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
-.wk-table { width:100%; border-collapse:collapse; }
-.wk-table td { padding:5px 6px; font-size:12px; vertical-align:middle; }
-.wk-table td:first-child { color:#5f5e5a; white-space:nowrap; width:150px; }
-.wk-track { height:18px; background:#f4f3ef; border-radius:3px; overflow:hidden; }
-.wk-fill { height:100%; border-radius:3px; }
-.cn { background:#378add; } .cw { background:#ef9f27; } .cr { background:#e24b4a; }
-.wk-num { color:#1a1a18; font-weight:700; white-space:nowrap; text-align:right; width:72px; }
-.wk-avg { color:#888780; font-size:11px; width:72px; }
-.wk-delta { white-space:nowrap; width:130px; text-align:right; font-size:11px; }
-.up { color:#a32d2d; font-weight:600; } .dn { color:#27500a; font-weight:600; } .na { color:#b4b2a9; }
-.wk-current td { background:#fafaf8; }
-.wk-note { font-size:10px; color:#888780; font-style:italic; display:block; margin-top:1px; }
+.wk-grid { display:flex; flex-direction:column; gap:0; }
+.wk-row { display:grid; grid-template-columns:148px 1fr 88px 140px; align-items:center; gap:12px; padding:8px 6px; border-bottom:0.5px solid #f0ede6; }
+.wk-row:last-child { border-bottom:none; }
+.wk-row.wk-current { background:#fafaf8; border-radius:8px; padding:9px 8px; margin:0 -2px 4px; border-bottom:none; }
+.wk-lbl { display:flex; flex-direction:column; gap:2px; }
+.wk-date { font-size:13px; font-weight:600; color:#1a1a18; }
+.wk-badge-actual { display:inline-block; font-size:10px; background:#e6f1fb; color:#185fa5; border-radius:4px; padding:1px 6px; margin-left:5px; vertical-align:middle; font-weight:600; }
+.wk-days { font-size:11px; color:#b4b2a9; }
+.wk-bar-wrap { height:18px; background:#f4f3ef; border-radius:3px; overflow:hidden; }
+.wk-bar { height:100%; border-radius:3px; }
+.wk-amount { font-size:14px; font-weight:700; color:#1a1a18; text-align:right; line-height:1.2; }
+.wk-unit { font-size:11px; font-weight:400; color:#888780; display:block; }
+.wk-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.wk-pill-row { display:flex; align-items:center; gap:5px; }
+.wk-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.wk-pill { display:inline-flex; align-items:center; font-size:12px; font-weight:600; padding:3px 9px; border-radius:100px; white-space:nowrap; }
+.wk-up { background:#fcebeb; color:#a32d2d; }
+.wk-dn { background:#eaf3de; color:#27500a; }
+.wk-na { background:#f4f3ef; color:#888780; font-weight:400; font-size:11px; }
+.wk-ctx { font-size:10px; color:#b4b2a9; font-style:italic; }
 .svc-compare { width:100%; border-collapse:collapse; font-size:12px; }
 .svc-compare th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#888780; padding:5px 8px; border-bottom:1px solid #e8e6e0; text-align:right; }
 .svc-compare th:first-child { text-align:left; }
@@ -172,44 +180,44 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   <div class="card">
     <div class="card-title">Gasto semanal</div>
     <div class="card-sub">Semana Actual: Media de Días Transcurridos · Semanas Anteriores: Media de 7 Días Completos · Excl. Cargos Puntuales</div>
-    <table class="wk-table">
-      <tr class="wk-current">
-        <td>13 may <small style="color:#888780">(semana actual)</small></td>
-        <td><div class="wk-track"><div class="wk-fill cr" style="width:100%"></div></div></td>
-        <td class="wk-num">5.391 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta up">+46% vs ant.<span class="wk-note">3 días (L-M-X)</span></td>
-      </tr>
-      <tr>
-        <td>06 may</td>
-        <td><div class="wk-track"><div class="wk-fill cr" style="width:88%"></div></div></td>
-        <td class="wk-num">3.686 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta up">+11% vs ant.<span class="wk-note">Excl. 19.767 € Palo Alto</span></td>
-      </tr>
-      <tr>
-        <td>28 abr</td>
-        <td><div class="wk-track"><div class="wk-fill cw" style="width:56%"></div></div></td>
-        <td class="wk-num">3.329 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta up">+32% vs ant.</td>
-      </tr>
-      <tr>
-        <td>21 abr</td>
-        <td><div class="wk-track"><div class="wk-fill cn" style="width:42%"></div></div></td>
-        <td class="wk-num">2.521 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta up">+2% vs ant.</td>
-      </tr>
-      <tr>
-        <td>14 abr</td>
-        <td><div class="wk-track"><div class="wk-fill cn" style="width:42%"></div></div></td>
-        <td class="wk-num">2.483 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta up">+20% vs ant.</td>
-      </tr>
-      <tr>
-        <td>07 abr</td>
-        <td><div class="wk-track"><div class="wk-fill cn" style="width:35%"></div></div></td>
-        <td class="wk-num">2.077 €</td><td class="wk-avg">avg/día</td>
-        <td class="wk-delta na">— Primera semana completa</td>
-      </tr>
-    </table>
+    <div class="wk-grid">
+      <div class="wk-row wk-current">
+        <div class="wk-lbl"><span class="wk-date">11 may</span><span class="wk-badge-actual">actual</span><span class="wk-days">L-M-X · 3 días</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:100%;background:#e24b4a;"></div></div>
+        <div class="wk-amount">5.391 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#e24b4a;"></div><span class="wk-pill wk-up">↑ +46%</span></div><span class="wk-ctx">vs media 7 días sem. ant.</span></div>
+      </div>
+      <div class="wk-row">
+        <div class="wk-lbl"><span class="wk-date">04 may</span><span class="wk-days">7 días completos</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:68%;background:#ef9f27;"></div></div>
+        <div class="wk-amount">3.686 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#ef9f27;"></div><span class="wk-pill wk-up">↑ +19%</span></div><span class="wk-ctx">excl. Palo Alto 19.767 €</span></div>
+      </div>
+      <div class="wk-row">
+        <div class="wk-lbl"><span class="wk-date">27 abr</span><span class="wk-days">7 días completos</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:57%;background:#ef9f27;"></div></div>
+        <div class="wk-amount">3.101 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#ef9f27;"></div><span class="wk-pill wk-up">↑ +24%</span></div></div>
+      </div>
+      <div class="wk-row">
+        <div class="wk-lbl"><span class="wk-date">20 abr</span><span class="wk-days">7 días completos</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:46%;background:#378add;"></div></div>
+        <div class="wk-amount">2.505 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#378add;"></div><span class="wk-pill wk-up">↑ +2%</span></div></div>
+      </div>
+      <div class="wk-row">
+        <div class="wk-lbl"><span class="wk-date">13 abr</span><span class="wk-days">7 días completos</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:45%;background:#378add;"></div></div>
+        <div class="wk-amount">2.449 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#378add;"></div><span class="wk-pill wk-up">↑ +19%</span></div></div>
+      </div>
+      <div class="wk-row">
+        <div class="wk-lbl"><span class="wk-date">06 abr</span><span class="wk-days">7 días completos</span></div>
+        <div class="wk-bar-wrap"><div class="wk-bar" style="width:38%;background:#378add;"></div></div>
+        <div class="wk-amount">2.058 €<span class="wk-unit">avg/día</span></div>
+        <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#888780;"></div><span class="wk-pill wk-na">— primera semana</span></div></div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -391,7 +399,7 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   <!-- Matriz de cuentas -->
   <div class="card">
     <div class="card-title">Matriz de cuentas — Coste, variación y driver principal</div>
-    <div class="card-sub">Todas las Cuentas · Comparativa 06 May (Inicio sem. ant.) / 12 May / 13 May · Driver = Servicio/Usage Type principal que explica el incremento</div>
+    <div class="card-sub">Todas las Cuentas · Comparativa 06 May (Inicio Sem. Ant.) / 12 May / 13 May · Driver = Servicio/Usage Type Principal que Explica el Incremento</div>
     <div class="matrix-wrap">
       <table class="matrix">
         <thead>
