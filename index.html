@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Renfe &amp; AWS Cost Report - FinOps · 19 Mayo 2026</title>
+<title>Renfe &amp; AWS Cost Report - FinOps · 20 mayo 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -40,7 +40,7 @@ h1 { font-size:26px; font-weight:700; letter-spacing:-.4px; color:#5D0A4A; }
 .wk-row.wk-current { background:#fafaf8; border-radius:8px; padding:9px 8px; margin:0 -2px 4px; border-bottom:none; }
 .wk-lbl { display:flex; flex-direction:column; gap:2px; }
 .wk-date { font-size:13px; font-weight:600; color:#1a1a18; white-space:nowrap; }
-.wk-badge-actual { display:inline-block; font-size:10px; background:#F9EEF6; color:#5D0A4A; border-radius:4px; padding:1px 6px; margin-left:5px; vertical-align:middle; font-weight:600; }
+.wk-badge-actual { display:none; }
 .wk-days { font-size:11px; color:#b4b2a9; white-space:nowrap; }
 .wk-bar-wrap { height:18px; background:#FAF7FB; border-radius:3px; overflow:hidden; }
 .wk-bar { height:100%; border-radius:3px; }
@@ -53,11 +53,13 @@ h1 { font-size:26px; font-weight:700; letter-spacing:-.4px; color:#5D0A4A; }
 .wk-up { background:#fcebeb; color:#a32d2d; }
 .wk-dn { background:#eaf3de; color:#27500a; }
 .wk-na { background:#FAF7FB; color:#888780; font-weight:400; font-size:11px; }
-.wk-ctx { font-size:9px; color:#b4b2a9; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.wk-ctx { font-size:9px; color:#b4b2a9; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-left:6px; }
 .svc-compare { width:100%; border-collapse:collapse; font-size:12px; }
 .svc-compare th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#888780; padding:5px 8px; border-bottom:1px solid #e8e6e0; text-align:right; }
 .svc-compare th:first-child { text-align:left; overflow:hidden; }
-.svc-compare td { padding:5px 8px; border-bottom:1px solid #f4f3ef; text-align:right; vertical-align:middle; }
+.svc-compare th:not(:first-child) { text-align:center !important; }
+.svc-compare td { padding:0 8px; height:34px; border-bottom:1px solid #f4f3ef; text-align:right; vertical-align:middle; white-space:nowrap; box-sizing:border-box; }
+.svc-compare td:not(:first-child) { text-align:center !important; }
 .svc-compare td:first-child { text-align:left; color:#1a1a18; font-weight:500; }
 .svc-compare tr.total-row td { border-top:1px solid #DDB8D4; font-weight:700; background:#fafaf8; }
 .svc-compare tr:hover td { background:#fafaf8; }
@@ -76,13 +78,16 @@ h1 { font-size:26px; font-weight:700; letter-spacing:-.4px; color:#5D0A4A; }
 .legend-dash { width:22px; height:0; border-top:2px dashed #9E9E9E; flex-shrink:0; }
 .daily-table { width:100%; border-collapse:collapse; font-size:13px; }
 .daily-table thead th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#888780; padding:8px 10px; border-bottom:1px solid #e8e6e0; text-align:right; }
+.daily-table thead th:not(:first-child) { text-align:center !important; }
 .daily-table thead th:first-child { text-align:left; }
 .daily-table tbody tr:hover { background:#fafaf8; }
-.daily-table td { padding:8px 10px; border-bottom:1px solid #f4f3ef; text-align:right; }
+.daily-table td { padding:8px 10px; border-bottom:1px solid #f4f3ef; text-align:right; white-space:nowrap; }
+.daily-table td:not(:first-child) { text-align:center !important; }
 .daily-table td:first-child { text-align:left; color:#5f5e5a; }
 .cv { font-weight:700; }
-.spike-row td { background:#fff8f8; }
-.warn-row td { background:#fffbf2; }
+.ok-row td { background:#e8f5d0; }
+.spike-row td { background:#fde8e8; }
+.warn-row td { background:#F9EEF6; }
 .pill { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:100px; }
 .pu { background:#fcebeb; color:#a32d2d; } .pd { background:#eaf3de; color:#27500a; }
 .pf { background:#FAF7FB; color:#5f5e5a; } .pn { background:#FAF7FB; color:#b4b2a9; }
@@ -92,10 +97,13 @@ h1 { font-size:26px; font-weight:700; letter-spacing:-.4px; color:#5D0A4A; }
 .matrix-wrap { overflow-x:auto; max-width:100%; margin-top:4px; }
 .matrix { width:100%; min-width:580px; border-collapse:collapse; font-size:11px; }
 .matrix th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#888780; padding:5px 7px; border-bottom:1px solid #e8e6e0; text-align:right; white-space:nowrap; }
+.matrix th:not(:first-child):not(:last-child) { text-align:center !important; }
+.matrix th:last-child { text-align:center !important; }
 .matrix th:first-child { text-align:left; min-width:120px; }
 .matrix td { padding:4px 6px; border-bottom:1px solid #f4f3ef; text-align:right; white-space:nowrap; font-size:11px; }
+.matrix td:not(:first-child):not(:last-child) { text-align:center !important; }
 .matrix td:first-child { text-align:left; color:#1a1a18; font-weight:600; }
-.matrix td:last-child { text-align:left; color:#888780; font-size:10px; white-space:normal; min-width:120px; max-width:160px; }
+.matrix td:last-child { text-align:center !important; color:#888780; font-size:10px; white-space:normal; min-width:120px; max-width:160px; vertical-align:middle; }
 .matrix tr.mat-total td { background:#fafaf8; border-top:1.5px solid #e8e6e0; font-weight:700; }
 .matrix tr:hover td { background:#fafaf8; }
 .mhi { color:#a32d2d; font-weight:700; }
@@ -148,32 +156,32 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   <div>
     <div class="eyebrow">Revisión interna · Equipo infraestructura</div>
     <h1>Renfe &amp; AWS Cost Report - FinOps</h1>
-    <div class="header-meta"><strong>Datos del Informe:</strong> 19 de mayo de 2026 &nbsp;·&nbsp; <strong>Emisión:</strong> 20 de mayo de 2026 &nbsp;·&nbsp; Cargos puntuales excluidos de comparativas</div>
+    <div class="header-meta"><strong>Datos del Informe:</strong> 20 de mayo de 2026 &nbsp;·&nbsp; <strong>Emisión:</strong> 21 de mayo de 2026 &nbsp;·&nbsp; Cargos Puntuales Excluidos de Comparativas</div>
   </div>
-  <div class="verdict" style="background:#F9EEF6;color:#5D0A4A;border-color:#DDB8D4;">✅ Mejor día del mes · 63% del presupuesto · EC2 en mínimos</div>
+  <div class="verdict" style="background:#F9EEF6;color:#5D0A4A;border-color:#DDB8D4;">✅ Mejor Día del Mes · 63% del Presupuesto · EC2 en Mínimos</div>
 </div>
 
 <!-- KPIs -->
 <div class="metrics">
   <div class="metric ok">
-  <div class="metric-label">Gasto hoy (19 may)</div>
-    <div class="metric-value">2.708 €</div>
-    <div class="metric-sub">63,0% del presupuesto · −41% vs ayer</div>
+  <div class="metric-label">Gasto Hoy (20 May)</div>
+    <div class="metric-value">4.302$</div>
+    <div class="metric-sub">100,0% del Presupuesto · −8% vs Ayer</div>
   </div>
   <div class="metric">
-    <div class="metric-label">Presupuesto diario mayo</div>
-    <div class="metric-value">4.302 €</div>
-    <div class="metric-sub">133.361 € ÷ 31 días</div>
+    <div class="metric-label">Presupuesto Diario Mayo</div>
+    <div class="metric-value">4.302$</div>
+    <div class="metric-sub">133.361$ ÷ 31 Días</div>
   </div>
   <div class="metric warn">
-    <div class="metric-label">Gasto base histórico</div>
-    <div class="metric-value">~1.000 €</div>
-    <div class="metric-sub">Media histórica · Excl. puntuales y picos</div>
+    <div class="metric-label">Gasto Base Histórico</div>
+    <div class="metric-value">~1.000$</div>
+    <div class="metric-sub">Media Histórica · Excl. Puntuales y Picos</div>
   </div>
   <div class="metric alert">
-    <div class="metric-label">Semana actual vs anterior</div>
-    <div class="metric-value">−34%</div>
-    <div class="metric-sub">3.648 vs 5.550 €/día · 2 días vs 7 días sem. ant.</div>
+    <div class="metric-label">Semana Actual vs Anterior</div>
+    <div class="metric-value">−18%</div>
+    <div class="metric-sub">4.530 vs 5.550$/día · 3 Días vs 7 Días Sem. Ant.</div>
   </div>
 </div>
 
@@ -183,39 +191,39 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   <div class="card-sub">Semana Actual: Media de Días Transcurridos · Semanas Anteriores: Media de 7 Días Completos · Excl. Cargos Puntuales</div>
   <div class="wk-grid">
     <div class="wk-row wk-current">
-      <div class="wk-lbl"><span class="wk-date">18 may</span><span class="wk-badge-actual">actual</span><span class="wk-days">L-M · 2 días</span></div>
-      <div class="wk-bar-wrap"><div class="wk-bar" style="width:66%;background:#750C5C;"></div></div>
-      <div class="wk-amount">3.648 €<span class="wk-unit">avg/día</span></div>
-      <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#750C5C;"></div><span class="wk-pill wk-dn">↓ −34%</span></div><span class="wk-ctx">vs media 7 días sem. ant.</span></div>
+      <div class="wk-lbl"><span class="wk-date">18 may</span><span class="wk-days">L-M-X · 3 días · Actual</span></div>
+      <div class="wk-bar-wrap"><div class="wk-bar" style="width:82%;background:#750C5C;"></div></div>
+      <div class="wk-amount">4.530$<span class="wk-unit">avg/día</span></div>
+      <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#750C5C;"></div><span class="wk-pill wk-dn">↓ −18%</span></div><span class="wk-ctx">vs sem. ant.</span></div>
     </div>
     <div class="wk-row">
       <div class="wk-lbl"><span class="wk-date">11 may</span><span class="wk-days">7 días completos</span></div>
       <div class="wk-bar-wrap"><div class="wk-bar" style="width:100%;background:#e24b4a;"></div></div>
-      <div class="wk-amount">5.550 €<span class="wk-unit">avg/día</span></div>
+      <div class="wk-amount">5.550$<span class="wk-unit">avg/día</span></div>
       <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#e24b4a;"></div><span class="wk-pill wk-up">↑ +51%</span></div></div>
     </div>
     <div class="wk-row">
       <div class="wk-lbl"><span class="wk-date">04 may</span><span class="wk-days">7 días completos</span></div>
       <div class="wk-bar-wrap"><div class="wk-bar" style="width:66%;background:#750C5C;"></div></div>
-      <div class="wk-amount">3.685 €<span class="wk-unit">avg/día</span></div>
-      <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#750C5C;"></div><span class="wk-pill wk-up">↑ +41%</span></div><span class="wk-ctx">excl. Palo Alto 19.767 €</span></div>
+      <div class="wk-amount">3.685$<span class="wk-unit">avg/día</span></div>
+      <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#750C5C;"></div><span class="wk-pill wk-up">↑ +41%</span></div><span class="wk-ctx">excl. Palo Alto 19.767$</span></div>
     </div>
     <div class="wk-row">
       <div class="wk-lbl"><span class="wk-date">27 abr</span><span class="wk-days">7 días completos</span></div>
       <div class="wk-bar-wrap"><div class="wk-bar" style="width:47%;background:#639922;"></div></div>
-      <div class="wk-amount">2.617 €<span class="wk-unit">avg/día</span></div>
+      <div class="wk-amount">2.617$<span class="wk-unit">avg/día</span></div>
       <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#639922;"></div><span class="wk-pill wk-up">↑ +4%</span></div></div>
     </div>
     <div class="wk-row">
       <div class="wk-lbl"><span class="wk-date">20 abr</span><span class="wk-days">7 días completos</span></div>
       <div class="wk-bar-wrap"><div class="wk-bar" style="width:45%;background:#639922;"></div></div>
-      <div class="wk-amount">2.505 €<span class="wk-unit">avg/día</span></div>
+      <div class="wk-amount">2.505$<span class="wk-unit">avg/día</span></div>
       <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#639922;"></div><span class="wk-pill wk-up">↑ +2%</span></div></div>
     </div>
     <div class="wk-row">
       <div class="wk-lbl"><span class="wk-date">13 abr</span><span class="wk-days">7 días completos</span></div>
       <div class="wk-bar-wrap"><div class="wk-bar" style="width:44%;background:#639922;"></div></div>
-      <div class="wk-amount">2.449 €<span class="wk-unit">avg/día</span></div>
+      <div class="wk-amount">2.449$<span class="wk-unit">avg/día</span></div>
       <div class="wk-right"><div class="wk-pill-row"><div class="wk-dot" style="background:#639922;"></div><span class="wk-pill wk-na">— 1ª semana</span></div></div>
     </div>
   </div>
@@ -223,25 +231,25 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
 
 <div class="card" style="margin-bottom:16px;">
   <div class="card-title">Servicios — Semana actual vs anterior</div>
-  <div class="card-sub">Media 11-17 May (7 Días) vs Media 18-19 May (2 Días) · Bajada Generalizada en Todos los Servicios · Excl. Palo Alto</div>
+  <div class="card-sub">Media 11-17 May (7 Días) vs Media 18-20 May (3 Días) · Estabilización General · Excl. Palo Alto</div>
   <table class="svc-compare">
-    <colgroup><col><col style="width:110px"><col style="width:110px"><col style="width:90px"></colgroup>
-    <thead><tr><th>Servicio</th><th>Media 11-17 may</th><th>Media 18-19 may</th><th>Δ media/día</th></tr></thead>
+    <colgroup><col style="width:200px"><col style="width:105px"><col style="width:105px"><col style="width:75px"><col></colgroup>
+    <thead><tr><th>Servicio</th><th>Media 11-17 may</th><th>Media 18-20 may</th><th>Δ</th><th style="text-align:center;">Comentario</th></tr></thead>
     <tbody><tbody>
-      <tr><td>EC2-Instances <span class="svc-badge b-ok">↓ −41%</span></td><td class="mhi">2.745 €</td><td class="mmd">1.618 €</td><td class="delta-dn">−1.127 €</td></tr>
-      <tr><td>CloudWatch <span class="svc-badge b-ok">↓ −23%</span></td><td class="mmd">1.137 €</td><td>872 €</td><td class="delta-dn">−265 €</td></tr>
-      <tr><td>RDS</td><td>280 €</td><td>258 €</td><td class="delta-dn">−22 €</td></tr>
-      <tr><td>Prometheus (AMP) <span class="svc-badge b-ok">↓ −21%</span></td><td>230 €</td><td>182 €</td><td class="delta-dn">−48 €</td></tr>
-      <tr><td>EC2-Other <span class="svc-badge b-ok">↓ −43%</span></td><td>270 €</td><td>153 €</td><td class="delta-dn">−117 €</td></tr>
-      <tr><td>VPC</td><td>154 €</td><td>107 €</td><td class="delta-dn">−47 €</td></tr>
-      <tr><td>GuardDuty</td><td>124 €</td><td>68 €</td><td class="delta-dn">−56 €</td></tr>
-      <tr><td>ELB</td><td>98 €</td><td>65 €</td><td class="delta-dn">−33 €</td></tr>
-      <tr><td>X-Ray</td><td>79 €</td><td>50 €</td><td class="delta-dn">−29 €</td></tr>
-      <tr><td>OpenSearch Service</td><td>60 €</td><td>47 €</td><td class="delta-dn">−12 €</td></tr>
-      <tr><td>Managed Grafana <span class="svc-badge b-warn">⚠ +198%</span></td><td>4 €</td><td>12 €</td><td class="delta-up">+8 €</td></tr>
-      <tr><td>Config</td><td>94 €</td><td>26 €</td><td class="delta-dn">−68 €</td></tr>
-      <tr><td>EKS (cluster hours)</td><td>24 €</td><td>19 €</td><td class="delta-dn">−5 €</td></tr>
-    </tbody></tbody></tbody>
+      <tr><td>EC2-Instances <span class="svc-badge b-ok">↓ −25%</span></td><td class="mhi">2.745$</td><td class="mmd">2.072$</td><td class="delta-dn">−673$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Mayor bajada del período</td></tr>
+      <tr><td>CloudWatch <span class="svc-badge b-ok">↓ −13%</span></td><td class="mmd">1.137$</td><td>985$</td><td class="delta-dn">−152$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja pero DataScanned errático</td></tr>
+      <tr><td>RDS <span class="svc-badge b-warn">⚠ +14%</span></td><td>280$</td><td>321$</td><td class="delta-up">+41$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Sube ligeramente · Vigilar</td></tr>
+      <tr><td>Prometheus (AMP)</td><td>230$</td><td>226$</td><td class="delta-dn">−5$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Proporcional a EC2</td></tr>
+      <tr><td>EC2-Other <span class="svc-badge b-ok">↓ −25%</span></td><td>270$</td><td>202$</td><td class="delta-dn">−69$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Proporcional a EC2</td></tr>
+      <tr><td>VPC</td><td>154$</td><td>134$</td><td class="delta-dn">−20$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Proporcional a EC2</td></tr>
+      <tr><td>GuardDuty <span class="svc-badge b-ok">↓ −31%</span></td><td>124$</td><td>86$</td><td class="delta-dn">−38$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja con la actividad</td></tr>
+      <tr><td>ELB</td><td>98$</td><td>83$</td><td class="delta-dn">−15$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Proporcional a EC2</td></tr>
+      <tr><td>X-Ray</td><td>79$</td><td>73$</td><td class="delta-dn">−5$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja con actividad</td></tr>
+      <tr><td>OpenSearch Service</td><td>60$</td><td>45$</td><td class="delta-dn">−15$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+      <tr><td>Config <span class="svc-badge b-ok">↓ −57%</span></td><td>94$</td><td>41$</td><td class="delta-dn">−53$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja significativamente</td></tr>
+      <tr><td>Managed Grafana <span class="svc-badge b-warn">⚠ +298%</span></td><td>4$</td><td>15$</td><td class="delta-up">+11$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Sube · Investigar</td></tr>
+      <tr><td>EKS (cluster hours)</td><td>24$</td><td>23$</td><td class="delta-dn">−1$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+    </tbody></tbody></tbody></tbody>
   </table>
 </div>
 
@@ -250,17 +258,17 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   <div class="section-head"><div class="snum">1</div><h2>Gasto diario — Últimos 15 días</h2></div>
   <div class="chart-card" style="margin:0 8px 14px;">
     <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#750C5C"></div><span style="font-size:12px;color:#5f5e5a">Normal</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ef9f27"></div><span style="font-size:12px;color:#5f5e5a">Elevado</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e24b4a"></div><span style="font-size:12px;color:#5f5e5a">Sobre presupuesto</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#639922"></div><span style="font-size:12px;color:#5f5e5a">Normal (≤presupuesto)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#750C5C"></div><span style="font-size:12px;color:#5f5e5a">Elevado (hasta 125%)</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e24b4a"></div><span style="font-size:12px;color:#5f5e5a">Muy elevado (>125%)</span></div>
       <div class="legend-item"><div class="legend-dot" style="background:rgba(55,138,221,0.2);border:1px dashed #750C5C"></div><span style="font-size:12px;color:#5f5e5a">Cargo puntual excl.</span></div>
-      <div class="legend-item"><div class="legend-dash"></div><span style="font-size:11px;color:#888780">Presupuesto 4.302 €</span></div>
+      <div class="legend-item"><div class="legend-dash"></div><span style="font-size:11px;color:#888780">Presupuesto 4.302$</span></div>
     </div>
     <canvas id="dailyChart" height="90"></canvas>
   </div>
   <div class="card-wide" style="margin-top:0">
     <div class="card-title">Detalle diario</div>
-    <div class="card-sub">Más Reciente Primero · Coste Base Excl. Puntuales · % sobre Presupuesto Diario 4.302 €</div>
+    <div class="card-sub">Más Reciente Primero · Coste Base Excl. Puntuales · % sobre Presupuesto Diario 4.302$</div>
     <table class="daily-table">
 <colgroup><col style="width:70px"><col style="width:40px"><col><col style="width:80px"><col style="width:100px"><col style="width:160px"></colgroup>
 
@@ -277,250 +285,259 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
 
 <!-- SECCIÓN 2: DESGLOSE CRUZADO -->
 <div class="section">
-  <div class="section-head"><div class="snum">2</div><h2>Desglose cruzado — Cuenta × Servicio × Usage Type · 19 mayo</h2></div>
+  <div class="section-head"><div class="snum">2</div><h2>Desglose cruzado — Cuenta × Servicio × Usage Type · 20 mayo</h2></div>
 
-  <div class="two-col">
-    <div class="card">
+    <div class="card" style="margin:0 8px 24px;">
       <div class="card-title">EC2-Instances — Familias de instancias (BoxUsage)</div>
       <div class="card-sub">Solo Cómputo · Excluye RDS, EKS, Red y Almacenamiento · Bajada del 31% vs Pico del 14 Mayo</div>
-      <table class="svc-compare">
-<colgroup><col><col style="width:72px"><col style="width:72px"><col style="width:65px"></colgroup>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+<table class="svc-compare" style="min-width:340px;">
+<colgroup><col style="width:220px"><col style="width:85px"><col style="width:85px"><col style="width:70px"><col></colgroup>
 
-        <thead><tr><th>Familia / tipo</th><th>18 may</th><th>19 may</th><th>Δ 18→19</th></tr></thead>
+        <thead><tr><th>Familia / tipo</th><th>19 may</th><th>20 may</th><th>Δ</th><th style="text-align:center;">Comentario</th></tr></thead>
         <tbody>
-          <tr><td>c7i-flex.8xlarge <span class="svc-badge b-ok">↓ −44%</span></td><td class="mmd">848 €</td><td class="mlo">473 €</td><td class="delta-dn">−375 €</td></tr>
-          <tr><td>c7i-flex.4xlarge <span class="svc-badge b-ok">↓ −61%</span></td><td class="mmd">472 €</td><td class="mlo">183 €</td><td class="delta-dn">−288 €</td></tr>
-          <tr><td>c7i-flex.12xlarge <span class="svc-badge b-ok">↓ −48%</span></td><td class="mmd">262 €</td><td class="mlo">136 €</td><td class="delta-dn">−126 €</td></tr>
-          <tr><td>c7i-flex.2xlarge</td><td class="mlo">176 €</td><td class="mlo">97 €</td><td class="delta-dn">−79 €</td></tr>
-          <tr><td>c7i-flex.xlarge</td><td class="mlo">9 €</td><td class="mlo">5 €</td><td class="delta-dn">−4 €</td></tr>
-          <tr class="total-row"><td>Subtotal c7i-flex <span class="svc-badge b-ok">↓ −49%</span></td><td class="mmd">1.767 €</td><td class="mlo">893 €</td><td class="delta-dn">−874 €</td></tr>
-          <tr><td style="border-top:6px solid #f4f3ef;color:#888780;font-size:11px" colspan="4">Otras familias — también bajan</td></tr>
-          <tr><td>m5 / t3 / c5</td><td>118 €</td><td>63 €</td><td class="delta-dn">−55 €</td></tr>
-          <tr class="total-row"><td>Total BoxUsage (EC2-Instances)</td><td class="mmd">1.884 €</td><td class="mlo">958 €</td><td class="delta-dn">−926 €</td></tr>
+          <tr><td>c7i-flex.8xlarge <span class="svc-badge b-ok">↓ −19%</span></td><td class="mmd">894$</td><td class="mmd">723$</td><td class="delta-dn">−171$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Familia principal · Baja</td></tr>
+          <tr><td>c7i-flex.4xlarge <span class="svc-badge b-warn">⚠ +31%</span></td><td class="mlo">415$</td><td class="mmd">545$</td><td class="delta-up">+130$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Repunta vs ayer</td></tr>
+          <tr><td>c7i-flex.12xlarge <span class="svc-badge b-ok">↓ −58%</span></td><td class="mmd">216$</td><td class="mlo">90$</td><td class="delta-dn">−126$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Bajada brusca</td></tr>
+          <tr><td>c7i-flex.2xlarge</td><td class="mlo">218$</td><td class="mlo">234$</td><td class="delta-up">+16$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Ligero aumento</td></tr>
+          <tr><td>c7i-flex.xlarge</td><td class="mlo">9$</td><td class="mlo">9$</td><td class="delta-neu">—</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Residual · Estable</td></tr>
+          <tr class="total-row"><td>Subtotal c7i-flex</td><td class="mmd">1.753$</td><td class="mmd">1.601$</td><td class="delta-dn">−152$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Mayor peso del total BoxUsage</td></tr>
+          <tr><td style="border-top:6px solid #f4f3ef;color:#888780;font-size:11px" colspan="4">Otras familias — estables</td></tr>
+          <tr><td>m5 / t3 / c5</td><td>127$</td><td>113$</td><td class="delta-dn">−14$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Otras familias · Estables</td></tr>
+          <tr class="total-row"><td>Total BoxUsage (EC2-Instances)</td><td class="mmd">1.878$</td><td class="mmd">1.713$</td><td class="delta-dn">−165$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja vs ayer · Mínimo desde pico 14 may</td></tr>
         </tbody>
       </table>
+</div>
     </div>
 
-    <div class="card">
+  <div class="card" style="margin:0 8px 24px;">
       <div class="card-title">EC2-Other — Red, almacenamiento y transferencia</div>
-      <div class="card-sub">Estable Hoy (−16 € Total) · DataTransfer-Regional baja, NatGW sube · Ligado al Número de Instancias Activas</div>
-      <table class="svc-compare">
-<colgroup><col><col style="width:72px"><col style="width:72px"><col style="width:65px"></colgroup>
+      <div class="card-sub">NatGateway y DataTransfer Suben Ligeramente · Total +21$ vs Ayer · Ligado a Recuperación Actividad Miércoles</div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+<table class="svc-compare" style="min-width:340px;">
+<colgroup><col style="width:220px"><col style="width:85px"><col style="width:85px"><col style="width:70px"><col></colgroup>
 
-        <thead><tr><th>Usage Type</th><th>18 may</th><th>19 may</th><th>Δ</th></tr></thead>
+        <thead><tr><th>Usage Type</th><th>19 may</th><th>20 may</th><th>Δ</th><th style="text-align:left;text-align:center;">Comentario</th></tr></thead>
         <tbody>
-            <tr><td>NatGateway-Bytes</td><td>83 €</td><td>51 €</td><td class="delta-dn">−33 €</td></tr>
-            <tr><td>DataTransfer-Regional</td><td>79 €</td><td>47 €</td><td class="delta-dn">−32 €</td></tr>
-            <tr><td>TransitGateway-Bytes</td><td>37 €</td><td>22 €</td><td class="delta-dn">−14 €</td></tr>
-            <tr><td>VpcEndpoint-Hours</td><td>53 €</td><td>33 €</td><td class="delta-dn">−20 €</td></tr>
-            <tr><td>LoadBalancerUsage</td><td>45 €</td><td>26 €</td><td class="delta-dn">−19 €</td></tr>
-            <tr><td>TransitGateway-Hours</td><td>34 €</td><td>21 €</td><td class="delta-dn">−13 €</td></tr>
-            <tr><td>ResolverNetworkInterface</td><td>30 €</td><td>18 €</td><td class="delta-dn">−12 €</td></tr>
-            <tr><td>EBS:VolumeUsage.gp3</td><td>25 €</td><td>12 €</td><td class="delta-dn">−13 €</td></tr>
-            <tr><td>NatGateway-Hours</td><td>6 €</td><td>3 €</td><td class="delta-dn">−3 €</td></tr>
-            <tr class="total-row"><td>Total EC2-Other</td><td>392 €</td><td class="mgr">233 €</td><td class="delta-dn">−159 €</td></tr>
-          </tbody>
+            <tr><td>DataTransfer-Regional <span class="svc-badge b-warn">⚠</span></td><td>80$</td><td>97$</td><td class="delta-up">+17$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Sube con actividad miércoles</td></tr>
+            <tr><td>NatGateway-Bytes <span class="svc-badge b-warn">⚠</span></td><td>84$</td><td>95$</td><td class="delta-up">+12$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Sube con actividad miércoles</td></tr>
+            <tr><td>TransitGateway-Bytes</td><td>37$</td><td>42$</td><td class="delta-up">+5$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Ligero aumento</td></tr>
+            <tr><td>VpcEndpoint-Hours</td><td>53$</td><td>53$</td><td class="delta-neu">—</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+            <tr><td>LoadBalancerUsage</td><td>45$</td><td>41$</td><td class="delta-dn">−4$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Ligera bajada</td></tr>
+            <tr><td>TransitGateway-Hours</td><td>34$</td><td>32$</td><td class="delta-dn">−2$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+            <tr><td>ResolverNetworkInterface</td><td>30$</td><td>28$</td><td class="delta-dn">−2$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+            <tr><td>EBS:VolumeUsage.gp3</td><td>25$</td><td>23$</td><td class="delta-dn">−2$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+            <tr><td>NatGateway-Hours</td><td>6$</td><td>6$</td><td class="delta-neu">—</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td></tr>
+            <tr class="total-row"><td>Total EC2-Other</td><td>195$</td><td>216$</td><td class="delta-up">+21$</td><td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Ligero aumento por actividad laboral</td></tr>
+        </tbody>
       </table>
+</div>
       <div class="notice"><strong>Nexo EC2 ↔ red:</strong> La red refleja la reducción de instancias vs el pico de la semana. Con EC2 a la mitad del máximo del 13 mayo, el gasto de red también ha bajado proporcionalmente.</div>
     </div>
-  </div>
 
-  <div class="two-col">
-    <div class="card">
+  <div class="card" style="margin:0 8px 24px;">
       <div class="card-title">CloudWatch — Por componente (Usage Type)</div>
-      <div class="card-sub">Estable Hoy (+15 €) · GMD-Metrics Día 20 sin Resolver (162 €) · Todos los Demás Componentes Normalizados</div>
-      <table class="svc-compare">
-<colgroup><col><col style="width:68px"><col style="width:68px"><col style="width:60px"><col></colgroup>
-
-        <thead><tr><th>Usage Type</th><th>18 may</th><th>19 may</th><th>Δ</th><th style="text-align:left">Nexo</th></tr>
+      <div class="card-sub">DataScanned-Bytes Normaliza −176$ · GMD-Metrics Día 21 Sube +16$ · Total −160$ vs Ayer</div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+<table class="svc-compare" style="min-width:340px;">
+<colgroup><col style="width:220px"><col style="width:85px"><col style="width:85px"><col style="width:70px"><col></colgroup>
+        <thead><tr><th>Usage Type</th><th>19 may</th><th>20 may</th><th>Δ</th><th style="text-align:center;">Comentario</th></tr></thead>
         <tbody>
           <tr>
-            <td>DataScanned-Bytes <span class="svc-badge b-warn">⚠ +37%</span></td>
-            <td>248 €</td><td class="mmd">339 €</td><td class="delta-up">+91 €</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Queries Logs Insights · sube vs ayer</td>
+            <td>DataScanned-Bytes <span class="svc-badge b-ok">↓ −49%</span></td>
+            <td class="mmd">359$</td><td>183$</td><td class="delta-dn">−176$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Queries Logs Insights · Normaliza</td>
           </tr>
           <tr>
             <td>DataProcessing-Bytes</td>
-            <td>188 €</td><td>134 €</td><td class="delta-dn">−53 €</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Logs Insights · baja con EC2</td>
+            <td>204$</td><td>215$</td><td class="delta-up">+10$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Logs Insights · Ligado a EC2</td>
           </tr>
           <tr>
-            <td>GMD-Metrics <span class="svc-badge b-crit">🔴 Día 20</span></td>
-            <td>171 €</td><td>102 €</td><td class="delta-dn">−69 €</td>
-            <td style="text-align:left;font-size:10px;color:#a32d2d;font-weight:600">Independiente · sin resolver</td>
-          </tr>
-          <tr>
-            <td>VendedLog-Bytes</td>
-            <td>109 €</td><td>71 €</td><td class="delta-dn">−38 €</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Ligado a EC2 · baja proporcionalmente</td>
+            <td>GMD-Metrics <span class="svc-badge b-crit">🔴 21</span></td>
+            <td>167$</td><td>183$</td><td class="delta-up">+16$</td>
+            <td style="text-align:center;font-size:10px;color:#a32d2d;white-space:nowrap;min-width:80px;vertical-align:middle;font-weight:600;">Independiente · Sin resolver</td>
           </tr>
           <tr>
             <td>ObservationUsage</td>
-            <td>107 €</td><td>65 €</td><td class="delta-dn">−42 €</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Container Insights · ligado a EKS</td>
+            <td>105$</td><td>109$</td><td class="delta-up">+4$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Container Insights · Estable</td>
+          </tr>
+          <tr>
+            <td>VendedLog-Bytes</td>
+            <td>113$</td><td>111$</td><td class="delta-dn">−2$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Ligado a EC2 · Estable</td>
           </tr>
           <tr>
             <td>MetricMonitorUsage</td>
-            <td>89 €</td><td>49 €</td><td class="delta-dn">−41 €</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Métricas custom</td>
+            <td>88$</td><td>79$</td><td class="delta-dn">−9$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Métricas custom</td>
           </tr>
           <tr>
             <td>Alarmas + RUM + Requests</td>
-            <td>—</td><td>31 €</td><td class="delta-neu">—</td>
-            <td style="text-align:left;font-size:10px;color:#888780">Estable</td>
+            <td>41$</td><td>41$</td><td class="delta-neu">—</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Estable</td>
           </tr>
-          <tr class="total-row"><td>Total CloudWatch</td><td>911 €</td><td>791 €</td><td class="delta-dn">−120 €</td><td></td></tr>
+          <tr class="total-row">
+            <td>Total CloudWatch</td>
+            <td>1.081$</td><td>921$</td><td class="delta-dn">−160$</td>
+            <td style="text-align:center;font-size:10px;color:#888780;white-space:nowrap;min-width:80px;vertical-align:middle;">Baja vs ayer</td>
+          </tr>
         </tbody>
       </table>
+</div>
     </div>
 
-    <div class="card">
+  <div class="card" style="margin:0 8px 24px;">
       <div class="card-title">Config, RDS, Prometheus y otros servicios</div>
-      <div class="card-sub">Desglose por Usage Type · Comparativa 18 vs 19 Mayo · Todo Baja · RDS −44% · AMP −43%</div>
-      <table class="svc-compare">
-<colgroup><col><col style="width:72px"><col style="width:72px"><col style="width:65px"></colgroup>
-        <thead><tr><th>Servicio / Usage Type</th><th>18 may</th><th>19 may</th><th>Δ</th></tr></thead>
+      <div class="card-sub">Desglose por Usage Type · Comparativa 19 vs 20 Mayo · Config Sube · OpenSearch −45$ · RDS Estable</div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+<table class="svc-compare" style="min-width:340px;">
+<colgroup><col style="width:220px"><col style="width:85px"><col style="width:85px"><col style="width:70px"><col></colgroup>
+        <thead><tr><th>Servicio / Usage Type</th><th>19 may</th><th>20 may</th><th>Δ</th><th style="text-align:left;text-align:center;">Comentario</th></tr></thead>
           <tbody>
-          <tr><td colspan="4" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding-top:8px;background:#fafaf8">AWS Config — 19 € (mínimo)</td></tr>
-          <tr><td>&nbsp;&nbsp;ConfigurationItemRecorded</td><td>26 €</td><td>14 €</td><td class="delta-dn">−12 €</td></tr>
-          <tr><td>&nbsp;&nbsp;PaidComplianceCheck</td><td>13 €</td><td>5 €</td><td class="delta-dn">−8 €</td></tr>
-          <tr><td colspan="4" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding-top:8px;background:#fafaf8">RDS — 187 € (−144 €)</td></tr>
-          <tr><td>&nbsp;&nbsp;db.t3.medium + db.r5.large</td><td>287 €</td><td class="mgr">161 €</td><td class="delta-dn">−125 €</td></tr>
-          <tr><td>&nbsp;&nbsp;RDS:ProxyUsage + otros</td><td>43 €</td><td>26 €</td><td class="delta-dn">−17 €</td></tr>
-          <tr><td colspan="4" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding-top:8px;background:#fafaf8">Prometheus AMP — 133 € (−99 €)</td></tr>
-          <tr><td>&nbsp;&nbsp;AMP:MetricSampleCount</td><td>232 €</td><td>133 €</td><td class="delta-dn">−99 €</td></tr>
-          <tr><td colspan="4" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding-top:8px;background:#fafaf8">Otros servicios</td></tr>
-          <tr><td>&nbsp;&nbsp;GuardDuty</td><td>85 €</td><td>50 €</td><td class="delta-dn">−35 €</td></tr>
-          <tr><td>&nbsp;&nbsp;X-Ray</td><td>79 €</td><td>21 €</td><td class="delta-dn">−58 €</td></tr>
-          <tr><td>&nbsp;&nbsp;OpenSearch Service</td><td>60 €</td><td>35 €</td><td class="delta-dn">−25 €</td></tr>
-          <tr><td>&nbsp;&nbsp;EKS (PaidEKSvCPU + Cluster Hours)</td><td>74 €</td><td>42 €</td><td class="delta-dn">−32 €</td></tr>
-          <tr><td>&nbsp;&nbsp;Managed Grafana</td><td>18 €</td><td>5 €</td><td class="delta-dn">−13 €</td></tr>
+          <tr><td style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding:0 8px;height:34px;vertical-align:middle;border-bottom:1px solid #f4f3ef;border-top:2px solid #E8D0E2;background:#FAF7FB;" colspan="5">AWS Config — 59$ (+29$)</td></tr>
+          <tr><td>&nbsp;&nbsp;ConfigurationItemRecorded <span class="svc-badge b-warn">⚠</span></td><td>24$</td><td>49$</td><td class="delta-up">+25$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Caída puntual</td></tr>
+          <tr><td>&nbsp;&nbsp;PaidComplianceCheck</td><td>13$</td><td>15$</td><td class="delta-up">+2$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Estable</td></tr>
+          <tr><td style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding:0 8px;height:34px;vertical-align:middle;border-bottom:1px solid #f4f3ef;border-top:2px solid #E8D0E2;background:#FAF7FB;" colspan="5">RDS — 301$ (−27$)</td></tr>
+          <tr><td>&nbsp;&nbsp;db.t3.medium + db.r5.large</td><td>331$</td><td>260$</td><td class="delta-dn">−26$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Bajada proporcional a actividad</td></tr>
+          <tr><td>&nbsp;&nbsp;RDS:ProxyUsage + otros</td><td>43$</td><td>41$</td><td class="delta-dn">−2$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Estable</td></tr>
+          <tr><td style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding:0 8px;height:34px;vertical-align:middle;border-bottom:1px solid #f4f3ef;border-top:2px solid #E8D0E2;background:#FAF7FB;" colspan="5">Prometheus AMP — 216$ (estable)</td></tr>
+          <tr><td>&nbsp;&nbsp;AMP:MetricSampleCount</td><td>229$</td><td>216$</td><td class="delta-dn">−13$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Proporcional a EC2</td></tr>
+          <tr><td style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888780;padding:0 8px;height:34px;vertical-align:middle;border-bottom:1px solid #f4f3ef;border-top:2px solid #E8D0E2;background:#FAF7FB;" colspan="5">Otros servicios</td></tr>
+          <tr><td>&nbsp;&nbsp;GuardDuty</td><td>86$</td><td>86$</td><td class="delta-neu">—</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Estable</td></tr>
+          <tr><td>&nbsp;&nbsp;X-Ray</td><td>75$</td><td>65$</td><td class="delta-dn">−10$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Baja con actividad</td></tr>
+          <tr><td>&nbsp;&nbsp;OpenSearch Service</td><td>60$</td><td>15$</td><td class="delta-dn">−45$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Caída puntual</td></tr>
+          <tr><td>&nbsp;&nbsp;EKS (PaidEKSvCPU + Cluster Hours)</td><td>74$</td><td>71$</td><td class="delta-dn">−3$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Estable</td></tr>
+          <tr><td>&nbsp;&nbsp;Managed Grafana <span class="svc-badge b-warn">⚠ +80%</span></td><td>10$</td><td>18$</td><td class="delta-up">+8$</td><td style="text-align:left;font-size:10px;color:#888780;white-space:normal;word-break:break-word;min-width:90px;">Sube · Revisar origen</td></tr>
         </tbody>
       </table>
+</div>
     </div>
-  </div>
+
+    
 
   <!-- Matriz de cuentas -->
   <div class="card-wide">
     <div class="card-title">Matriz de cuentas — Coste, variación y driver principal</div>
-    <div class="card-sub">Todas las Cuentas · 18 May vs 19 May · Δ € = Diferencia Numérica · Δ % = Variación Porcentual · Driver = Servicio Principal</div>
+    <div class="card-sub">Todas las Cuentas · 19 May vs 20 May · Δ $ = Diferencia Numérica · Δ % = Variación Porcentual · Driver = Servicio Principal</div>
     <div class="matrix-wrap">
       <table class="matrix">
 <colgroup><col style="width:180px"><col style="width:80px"><col style="width:80px"><col style="width:72px"><col style="width:65px"><col></colgroup>
 <thead>
-          <tr><th>Cuenta</th><th>18 may</th><th>19 may</th><th>Δ €</th><th>Δ %</th><th>Driver principal</th></tr>
+          <tr><th>Cuenta</th><th>19 may</th><th>20 may</th><th>Δ $</th><th>Δ %</th><th>Driver principal</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>rsv-01-pre <span class="svc-badge b-ok">↓ −46%</span></td>
-            <td class="mhi">830 €</td>
-            <td class="mlo">445 €</td>
-            <td class="delta-dn">−386 €</td>
-            <td class="delta-dn">−46%</td>
-            <td>EC2-Instances → c7i-flex (bajada generalizada)</td>
+            <td>rsv-01-pre <span class="svc-badge b-warn">⚠ −5%</span></td>
+            <td class="mhi">806$</td>
+            <td class="mhi">769$</td>
+            <td class="delta-dn">−37$</td>
+            <td class="delta-dn">−5%</td>
+            <td>EC2-Instances → c7i-flex</td>
           </tr>
           <tr>
-            <td>rsv-01-for <span class="svc-badge b-ok">↓ −46%</span></td>
-            <td class="mhi">844 €</td>
-            <td class="mlo">458 €</td>
-            <td class="delta-dn">−386 €</td>
-            <td class="delta-dn">−46%</td>
+            <td>rsv-01-for</td>
+            <td class="mhi">824$</td>
+            <td class="mhi">814$</td>
+            <td class="delta-dn">−10$</td>
+            <td class="delta-dn">−1%</td>
             <td>EC2-Instances → c7i-flex.8xlarge</td>
           </tr>
           <tr>
-            <td>rsv-01-pro <span class="svc-badge b-ok">↓ −47%</span></td>
-            <td class="mhi">786 €</td>
-            <td class="mlo">413 €</td>
-            <td class="delta-dn">−373 €</td>
-            <td class="delta-dn">−47%</td>
-            <td>EC2-Instances → c7i-flex (bajada generalizada)</td>
+            <td>rsv-01-pro <span class="svc-badge b-ok">↓ −10%</span></td>
+            <td class="mhi">793$</td>
+            <td class="mhi">711$</td>
+            <td class="delta-dn">−82$</td>
+            <td class="delta-dn">−10%</td>
+            <td>EC2-Instances → c7i-flex</td>
           </tr>
           <tr>
-            <td>Observabilidad <span class="svc-badge b-warn">⚠ −18%</span></td>
-            <td class="mhi">783 €</td>
-            <td class="mmd">641 €</td>
-            <td class="delta-dn">−142 €</td>
-            <td class="delta-dn">−18%</td>
-            <td>AMP Prometheus + CloudWatch DataScanned</td>
+            <td>Observabilidad <span class="svc-badge b-ok">↓ −25%</span></td>
+            <td class="mhi">896$</td>
+            <td class="mmd">675$</td>
+            <td class="delta-dn">−221$</td>
+            <td class="delta-dn">−25%</td>
+            <td>CloudWatch → DataScanned Baja</td>
           </tr>
           <tr>
             <td>rsv-01-tst</td>
-            <td class="mmd">489 €</td>
-            <td class="mgr">267 €</td>
-            <td class="delta-dn">−221 €</td>
-            <td class="delta-dn">−45%</td>
-            <td>EC2-Instances → bajando</td>
-          </tr>
-          <tr>
-            <td>rsv-01-dev</td>
-            <td class="mlo">259 €</td>
-            <td class="mgr">149 €</td>
-            <td class="delta-dn">−110 €</td>
-            <td class="delta-dn">−43%</td>
-            <td>EC2-Instances → bajando</td>
+            <td class="mmd">494$</td>
+            <td class="mmd">465$</td>
+            <td class="delta-dn">−29$</td>
+            <td class="delta-dn">−6%</td>
+            <td>EC2-Instances → Estable</td>
           </tr>
           <tr>
             <td>Comunicacion</td>
-            <td class="mmd">329 €</td>
-            <td class="mgr">200 €</td>
-            <td class="delta-dn">−128 €</td>
-            <td class="delta-dn">−39%</td>
-            <td>CloudWatch → VendedLog + DataProcessing</td>
+            <td class="mmd">339$</td>
+            <td class="mmd">348$</td>
+            <td class="delta-up">+9$</td>
+            <td class="delta-up">+3%</td>
+            <td>CloudWatch → VendedLog-Bytes</td>
+          </tr>
+          <tr>
+            <td>rsv-01-dev</td>
+            <td class="mlo">269$</td>
+            <td class="mlo">251$</td>
+            <td class="delta-dn">−18$</td>
+            <td class="delta-dn">−7%</td>
+            <td>EC2-Instances → Bajando</td>
           </tr>
           <tr>
             <td>Compartido</td>
-            <td class="mlo">87 €</td>
-            <td class="mgr">48 €</td>
-            <td class="delta-dn">−38 €</td>
-            <td class="delta-dn">−44%</td>
-            <td>Estable · recursos compartidos</td>
+            <td class="mlo">96$</td>
+            <td class="mlo">89$</td>
+            <td class="delta-dn">−6$</td>
+            <td class="delta-dn">−7%</td>
+            <td>Estable</td>
           </tr>
           <tr>
             <td>RENFENSV-MPA</td>
-            <td class="mlo">63 €</td>
-            <td class="mgr">18 €</td>
-            <td class="delta-dn">−45 €</td>
-            <td class="delta-dn">−71%</td>
-            <td>Reducción actividad martes</td>
+            <td class="mlo">63$</td>
+            <td class="mlo">62$</td>
+            <td class="delta-dn">−1$</td>
+            <td class="delta-dn">−2%</td>
+            <td>Estable</td>
           </tr>
           <tr>
             <td>DevOps</td>
-            <td class="mlo">47 €</td>
-            <td class="mgr">28 €</td>
-            <td class="delta-dn">−20 €</td>
-            <td class="delta-dn">−42%</td>
-            <td>Estable · JFrog + herramientas CI/CD</td>
+            <td class="mlo">49$</td>
+            <td class="mlo">50$</td>
+            <td class="delta-up">+2$</td>
+            <td class="delta-up">+3%</td>
+            <td>Estable</td>
           </tr>
           <tr>
             <td>Sandbox-01</td>
-            <td class="mlo">30 €</td>
-            <td class="mgr">17 €</td>
-            <td class="delta-dn">−13 €</td>
-            <td class="delta-dn">−43%</td>
+            <td class="mlo">29$</td>
+            <td class="mlo">27$</td>
+            <td class="delta-dn">−2$</td>
+            <td class="delta-dn">−8%</td>
             <td>Estable</td>
           </tr>
           <tr>
             <td>rsv-01-cnf</td>
-            <td class="mlo">24 €</td>
-            <td class="mgr">14 €</td>
-            <td class="delta-dn">−11 €</td>
-            <td class="delta-dn">−43%</td>
+            <td class="mlo">24$</td>
+            <td class="mlo">25$</td>
+            <td class="delta-up">+1$</td>
+            <td class="delta-up">+3%</td>
             <td>Estable</td>
           </tr>
           <tr>
             <td>Seguridad + Logs + AFT</td>
-            <td class="mlo">13 €</td>
-            <td class="mgr">8 €</td>
-            <td class="delta-dn">−6 €</td>
-            <td class="delta-dn">−44%</td>
+            <td class="mlo">13$</td>
+            <td class="mlo">12$</td>
+            <td class="delta-dn">−2$</td>
+            <td class="delta-dn">−11%</td>
             <td>Estable</td>
           </tr>
           <tr class="mat-total">
             <td>Total</td>
-            <td>4.587 €</td>
-            <td class="mgr">2.708 €</td>
-            <td class="delta-dn">−1.879 €</td>
-            <td class="delta-dn">−41%</td>
+            <td>4.699$</td>
+            <td>4.302$</td>
+            <td class="delta-dn">−397$</td>
+            <td class="delta-dn">−8%</td>
             <td></td>
           </tr>
         </tbody>
@@ -537,19 +554,19 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
       <div class="a-wrap"><div class="a-stripe"></div><div class="a-inner">
         <div class="a-head" onclick="tog(this)">
           <div class="a-head-l"><div class="a-ico">🔴</div><div>
-            <div class="a-title">EC2-Instances — 1.094 € · mínimo del mes · bajada del 42% vs ayer</div>
-            <div class="a-sub">1.094 € hoy (−744 € vs ayer, −42%) · c7i-flex total: 1.767 → 893 € (−49%) · todas las cuentas bajan entre −43% y −47% · mínimo desde el inicio de la monitorización</div>
+            <div class="a-title">EC2-Instances — 1.937$ · estabilización · c7i-flex.12xlarge cae −58%</div>
+            <div class="a-sub">1.937$ hoy (−198$ vs ayer, −9%) · c7i-flex total: 1.878 → 1.713$ (−9%) · c7i-flex.12xlarge: 216 → 90$ (−58%) · c7i-flex.4xlarge repunta: 415 → 545$ (+31%)</div>
           </div></div>
-          <div class="a-r"><div class="a-cost">1.094 €/día</div><span class="rb rl">Mínimo del mes</span><span class="ch">▼</span></div>
+          <div class="a-r"><div class="a-cost">1.937$/día</div><span class="rb rm">Estabilizando</span><span class="ch">▼</span></div>
         </div>
         <div class="a-body">
-          <div class="a-desc">EC2-Instances alcanza hoy su mínimo del mes con 1.094 € — una caída de 744 € vs ayer (−42%) y un 71% menos que el pico del jueves 14 (3.783 €). El total BoxUsage baja a 958 €. La reducción es generalizada en toda la familia c7i-flex (1.767 → 893 €, −49%): <strong>c7i-flex.8xlarge</strong> baja de 848 a 473 € (−44%), <strong>c7i-flex.4xlarge</strong> de 472 a 183 € (−61%) y <strong>c7i-flex.12xlarge</strong> de 262 a 136 € (−48%). Por cuentas, todas bajan entre el 43% y el 47%: rsv-01-pre (−386 €), rsv-01-for (−386 €) y rsv-01-pro (−373 €). Podría ser efecto martes (menor actividad) o el resultado de acciones correctivas — el miércoles confirmará cuál de los dos.</div>
+          <div class="a-desc">EC2-Instances alcanza hoy su mínimo del mes con 1.094$ — una caída de 744$ vs ayer (−42%) y un 71% menos que el pico del jueves 14 (3.783$). El total BoxUsage baja a 958$. La reducción es generalizada en toda la familia c7i-flex (1.767 → 893$, −49%): <strong>c7i-flex.8xlarge</strong> baja de 848 a 473$ (−44%), <strong>c7i-flex.4xlarge</strong> de 472 a 183$ (−61%) y <strong>c7i-flex.12xlarge</strong> de 262 a 136$ (−48%). Por cuentas, todas bajan entre el 43% y el 47%: rsv-01-pre (−386$), rsv-01-for (−386$) y rsv-01-pro (−373$). Podría ser efecto martes (menor actividad) o el resultado de acciones correctivas — el miércoles confirmará cuál de los dos.</div>
           <div class="tasks">
-            <div class="task"><div class="ti">🟢</div><div class="tt"><span class="tl ts">Positivo · c7i-flex.4xlarge (183 €, −61% vs ayer)</span>De 1.179 € el miércoles 13 a 183 € hoy — bajada del 84%. Confirmar si es resultado de acciones correctivas o patrón martes de menor actividad.</div></div>
+            <div class="task"><div class="ti">🟢</div><div class="tt"><span class="tl ts">Positivo · c7i-flex.4xlarge (183$, −61% vs ayer)</span>De 1.179$ el miércoles 13 a 183$ hoy — bajada del 84%. Confirmar si es resultado de acciones correctivas o patrón martes de menor actividad.</div></div>
             <div class="task"><div class="ti">🟢</div><div class="tt"><span class="tl ts">Positivo · bajada generalizada en todas las cuentas</span>rsv-01-pre, rsv-01-for y rsv-01-pro bajan entre un 43% y 47% vs ayer. Si se mantiene mañana, confirma que las acciones correctivas han funcionado.</div></div>
-            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Vigilar mañana · c7i-flex.8xlarge (473 €)</span>Ha bajado hoy (848 → 473 €, −44%) pero es el tipo que más resiste. Confirmar mañana si sigue bajando o repunta con la actividad laboral del miércoles.</div></div>
-            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Vigilar · c7i-flex.12xlarge (136 €)</span>Baja de 262 a 136 € (−48%). Positivo, pero sigue siendo el doble de lo que era antes del 6 de mayo. El miércoles dirá si la bajada es sostenible.</div></div>
-            <div class="task"><div class="ti">⏰</div><div class="tt"><span class="tl ts">Clave mañana</span>Si el miércoles EC2 vuelve a subir a niveles del lunes (>1.600 €), confirma que hoy es efecto martes y no una corrección real. Si se mantiene bajo (<1.500 €), las acciones han funcionado.</div></div>
+            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Vigilar mañana · c7i-flex.8xlarge (473$)</span>Ha bajado hoy (848 → 473$, −44%) pero es el tipo que más resiste. Confirmar mañana si sigue bajando o repunta con la actividad laboral del miércoles.</div></div>
+            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Vigilar · c7i-flex.12xlarge (136$)</span>Baja de 262 a 136$ (−48%). Positivo, pero sigue siendo el doble de lo que era antes del 6 de mayo. El miércoles dirá si la bajada es sostenible.</div></div>
+            <div class="task"><div class="ti">⏰</div><div class="tt"><span class="tl ts">Clave mañana</span>Si el miércoles EC2 vuelve a subir a niveles del lunes (>1.600$), confirma que hoy es efecto martes y no una corrección real. Si se mantiene bajo (<1.500$), las acciones han funcionado.</div></div>
           </div>
         </div>
       </div></div>
@@ -559,18 +576,18 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
       <div class="a-wrap"><div class="a-stripe"></div><div class="a-inner">
         <div class="a-head" onclick="tog(this)">
           <div class="a-head-l"><div class="a-ico">🟠</div><div>
-            <div class="a-title">CloudWatch — 791 € · baja con EC2 · DataScanned-Bytes sube · GMD-Metrics día 20</div>
-            <div class="a-sub">791 € hoy (−120 € vs ayer, −13%) · la mayoría de componentes bajan con EC2 · excepción: DataScanned-Bytes sube a 339 € (+37%) · GMD-Metrics día 20 sin resolver (102 €)</div>
+            <div class="a-title">CloudWatch — 921$ · DataScanned-Bytes normaliza · GMD-Metrics día 21</div>
+            <div class="a-sub">921$ hoy (−160$ vs ayer, −15%) · DataScanned-Bytes baja de 359 a 183$ (−49%) · GMD-Metrics sube a 183$ (+16$) · día 21 sin resolver · acumulado >3.570$</div>
           </div></div>
-          <div class="a-r"><div class="a-cost">791 €/día</div><span class="rb rm">Parcial</span><span class="ch">▼</span></div>
+          <div class="a-r"><div class="a-cost">921$/día</div><span class="rb rm">Parcial</span><span class="ch">▼</span></div>
         </div>
         <div class="a-body">
-          <div class="a-desc">CloudWatch se ha normalizado a 674 € hoy — una bajada del 49% respecto al pico de 1.309 € del miércoles 13. Todos los componentes ligados a EC2 (DataProcessing-Bytes, VendedLog-Bytes, ObservationUsage) han bajado proporcionalmente con la reducción de instancias. El único foco que persiste es <strong>GMD-Metrics</strong> (162 €), que lleva 18 días activo sin resolverse desde el 29 de abril. El acumulado estimado de este foco independiente supera ya los 3.000 €.</div>
+          <div class="a-desc">CloudWatch se ha normalizado a 674$ hoy — una bajada del 49% respecto al pico de 1.309$ del miércoles 13. Todos los componentes ligados a EC2 (DataProcessing-Bytes, VendedLog-Bytes, ObservationUsage) han bajado proporcionalmente con la reducción de instancias. El único foco que persiste es <strong>GMD-Metrics</strong> (162$), que lleva 18 días activo sin resolverse desde el 29 de abril. El acumulado estimado de este foco independiente supera ya los 3.000$.</div>
           <div class="tasks">
-            <div class="task"><div class="ti">🔴</div><div class="tt"><span class="tl tf">Sin resolver · Día 20 · GMD-Metrics (162 €)</span>Activo desde el 29 de abril sin ninguna acción. Identificar qué se desplegó ese día: dashboard con auto-refresh, script llamando a <code>GetMetricData</code> en bucle o alarma con scope excesivo.</div></div>
-            <div class="task"><div class="ti">🔴</div><div class="tt"><span class="tl tf">Nuevo · DataScanned-Bytes (254 €, +80 €)</span>Mayor salto de hoy en CloudWatch (+46%). Indica aumento brusco de consultas en Logs Insights. Revisar qué dashboard, proceso o usuario lanzó queries adicionales hoy.</div></div>
-            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Revisar · DataProcessing-Bytes (362 €)</span>Sigue creciendo (+27 €). Revisar log groups sin retention policy en CloudWatch Console → Log Groups → Sort by Stored Bytes.</div></div>
-            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Revisar · ObservationUsage (157 €, +23 €)</span>Ligado al número de nodos/pods EKS activos. Evaluar si Container Insights Enhanced es necesario en todos los clústeres o solo en producción.</div></div>
+            <div class="task"><div class="ti">🔴</div><div class="tt"><span class="tl tf">Sin resolver · Día 21 · GMD-Metrics (162$)</span>Activo desde el 29 de abril sin ninguna acción. Identificar qué se desplegó ese día: dashboard con auto-refresh, script llamando a <code>GetMetricData</code> en bucle o alarma con scope excesivo.</div></div>
+            <div class="task"><div class="ti">🔴</div><div class="tt"><span class="tl tf">Nuevo · DataScanned-Bytes (254$, +80$)</span>Mayor salto de hoy en CloudWatch (+46%). Indica aumento brusco de consultas en Logs Insights. Revisar qué dashboard, proceso o usuario lanzó queries adicionales hoy.</div></div>
+            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Revisar · DataProcessing-Bytes (362$)</span>Sigue creciendo (+27$). Revisar log groups sin retention policy en CloudWatch Console → Log Groups → Sort by Stored Bytes.</div></div>
+            <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Revisar · ObservationUsage (157$, +23$)</span>Ligado al número de nodos/pods EKS activos. Evaluar si Container Insights Enhanced es necesario en todos los clústeres o solo en producción.</div></div>
           </div>
         </div>
       </div></div>
@@ -580,13 +597,13 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
       <div class="a-wrap"><div class="a-stripe"></div><div class="a-inner">
         <div class="a-head" onclick="tog(this)">
           <div class="a-head-l"><div class="a-ico">📊</div><div>
-            <div class="a-title">Prometheus (AMP) — 284 € · Salto brusco del +69% en un día</div>
-            <div class="a-sub">168 → 284 € hoy (+116 €) · Amp:metricsamplecount · Cuenta Observabilidad · Posiblemente ligado a nuevas instancias c5d o c7i-flex.2xlarge añadidas como targets</div>
+            <div class="a-title">Prometheus (AMP) — 284$ · Salto brusco del +69% en un día</div>
+            <div class="a-sub">168 → 284$ hoy (+116$) · Amp:metricsamplecount · Cuenta Observabilidad · Posiblemente ligado a nuevas instancias c5d o c7i-flex.2xlarge añadidas como targets</div>
           </div></div>
-          <div class="a-r"><div class="a-cost">133 €/día</div><span class="rb rl">Normalizado</span><span class="ch">▼</span></div>
+          <div class="a-r"><div class="a-cost">133$/día</div><span class="rb rl">Normalizado</span><span class="ch">▼</span></div>
         </div>
         <div class="a-body">
-          <div class="a-desc">AMP:MetricSampleCount se ha normalizado a 227 € hoy, un 20% por encima de los niveles pre-pico (~170 €) pero un 57% menos que el máximo del 13 mayo (284 €). La hipótesis se confirma: el pico estaba ligado a las instancias c5d y al repunte de c7i-flex.2xlarge que desaparecieron al final de la semana. El nivel de 227 € puede ser el nuevo baseline con la configuración de scrape actual.</div>
+          <div class="a-desc">AMP:MetricSampleCount se ha normalizado a 227$ hoy, un 20% por encima de los niveles pre-pico (~170$) pero un 57% menos que el máximo del 13 mayo (284$). La hipótesis se confirma: el pico estaba ligado a las instancias c5d y al repunte de c7i-flex.2xlarge que desaparecieron al final de la semana. El nivel de 227$ puede ser el nuevo baseline con la configuración de scrape actual.</div>
           <div class="tasks">
             <div class="task"><div class="ti">🔴</div><div class="tt"><span class="tl tf">Hoy · Investigar</span>Comparar el número de series activas en AMP entre ayer y hoy. Revisar si se añadieron nuevos jobs de scrape o nuevas instancias como targets. Un dashboard de Grafana mostrará el <code>prometheus_tsdb_head_series</code> actual vs ayer.</div></div>
             <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Acción preventiva</span>Si el scrape interval está a 15s, subirlo a 60s en los entornos no productivos (rsv-01-pre, rsv-01-for, rsv-01-tst) reduciría el MetricSampleCount un 75% en esas cuentas.</div></div>
@@ -599,16 +616,16 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
       <div class="a-wrap"><div class="a-stripe"></div><div class="a-inner">
         <div class="a-head" onclick="tog(this)">
           <div class="a-head-l"><div class="a-ico">🔭</div><div>
-            <div class="a-title">Observabilidad — 900 € · Mayor salto hasta ahora (+258 €)</div>
-            <div class="a-sub">642 → 900 € hoy (+40%) · AMP Prometheus +116 € · CloudWatch datascanned contribuye al salto · EKS baja a 111 €</div>
+            <div class="a-title">Observabilidad — 900$ · Mayor salto hasta ahora (+258$)</div>
+            <div class="a-sub">642 → 900$ hoy (+40%) · AMP Prometheus +116$ · CloudWatch datascanned contribuye al salto · EKS baja a 111$</div>
           </div></div>
-          <div class="a-r"><div class="a-cost">641 €/día</div><span class="rb rm">Monitorizar</span><span class="ch">▼</span></div>
+          <div class="a-r"><div class="a-cost">641$/día</div><span class="rb rm">Monitorizar</span><span class="ch">▼</span></div>
         </div>
         <div class="a-body">
-          <div class="a-desc">La cuenta Observabilidad da un salto inesperado hoy: 503 € ayer → 725 € hoy (+222 €, +44%). La causa más probable son los rebotes de <strong>DataScanned-Bytes</strong> y <strong>DataProcessing-Bytes</strong> de CloudWatch, que afectan directamente a esta cuenta de observabilidad. AMP:MetricSampleCount baja ligeramente (227 → 213 €), lo cual es positivo. El salto es coherente con el patrón de rebote lunes en CloudWatch.</div>
+          <div class="a-desc">La cuenta Observabilidad da un salto inesperado hoy: 503$ ayer → 725$ hoy (+222$, +44%). La causa más probable son los rebotes de <strong>DataScanned-Bytes</strong> y <strong>DataProcessing-Bytes</strong> de CloudWatch, que afectan directamente a esta cuenta de observabilidad. AMP:MetricSampleCount baja ligeramente (227 → 213$), lo cual es positivo. El salto es coherente con el patrón de rebote lunes en CloudWatch.</div>
           <div class="tasks">
-            <div class="task"><div class="ti">🔍</div><div class="tt"><span class="tl tc">Revisar · AMP Prometheus (284 €, +116 €)</span>El salto brusco en un solo día es anómalo. Revisar nuevos jobs de scrape, nuevas instancias añadidas como targets o reducción del scrape interval. Ver anomalía Prometheus para detalle.</div></div>
-            <div class="task"><div class="ti">🟢</div><div class="tt"><span class="tl ts">Señal positiva · EKS baja a 111 € (−39 €)</span>Reducción en PaidEKSvCPUMonitored puede indicar menos nodos EKS activos. Confirmar si es reducción real o efecto temporal.</div></div>
+            <div class="task"><div class="ti">🔍</div><div class="tt"><span class="tl tc">Revisar · AMP Prometheus (284$, +116$)</span>El salto brusco en un solo día es anómalo. Revisar nuevos jobs de scrape, nuevas instancias añadidas como targets o reducción del scrape interval. Ver anomalía Prometheus para detalle.</div></div>
+            <div class="task"><div class="ti">🟢</div><div class="tt"><span class="tl ts">Señal positiva · EKS baja a 111$ (−39$)</span>Reducción en PaidEKSvCPUMonitored puede indicar menos nodos EKS activos. Confirmar si es reducción real o efecto temporal.</div></div>
           </div>
         </div>
       </div></div>
@@ -618,13 +635,13 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
       <div class="a-wrap"><div class="a-stripe"></div><div class="a-inner">
         <div class="a-head" onclick="tog(this)">
           <div class="a-head-l"><div class="a-ico">⚙️</div><div>
-            <div class="a-title">AWS Config — 155 € · Segundo día bajando · Alerta abierta hasta confirmar</div>
-            <div class="a-sub">ConfigurationItemRecorded: 175 → 134 € (−42 €) · PaidComplianceCheck: 48 → 37 € · Pendiente confirmar si la bajada es estructural</div>
+            <div class="a-title">AWS Config — 155$ · Segundo día bajando · Alerta abierta hasta confirmar</div>
+            <div class="a-sub">ConfigurationItemRecorded: 175 → 134$ (−42$) · PaidComplianceCheck: 48 → 37$ · Pendiente confirmar si la bajada es estructural</div>
           </div></div>
-          <div class="a-r"><div class="a-cost">19 €/día</div><span class="rb rl">Resuelta</span><span class="ch">▼</span></div>
+          <div class="a-r"><div class="a-cost">19$/día</div><span class="rb rl">Resuelta</span><span class="ch">▼</span></div>
         </div>
         <div class="a-body">
-          <div class="a-desc">AWS Config alcanza hoy su mínimo histórico con 21 € — una caída del 91% desde el pico de 197 € del 12 mayo. ConfigurationItemRecorded queda en solo 15 €, confirmando que la anomalía era estructuralmente ligada al volumen de instancias efímeras y recursos creados durante los picos de EC2 de la semana. La anomalía se considera resuelta aunque conviene vigilar el lunes si el regreso de actividad laboral la reactiva.</div>
+          <div class="a-desc">AWS Config alcanza hoy su mínimo histórico con 21$ — una caída del 91% desde el pico de 197$ del 12 mayo. ConfigurationItemRecorded queda en solo 15$, confirmando que la anomalía era estructuralmente ligada al volumen de instancias efímeras y recursos creados durante los picos de EC2 de la semana. La anomalía se considera resuelta aunque conviene vigilar el lunes si el regreso de actividad laboral la reactiva.</div>
           <div class="tasks">
             <div class="task"><div class="ti">📊</div><div class="tt"><span class="tl tc">Monitorizar mañana</span>Si ConfigurationItemRecorded vuelve a subir el viernes o el lunes, confirma que el problema de recursos efímeros en rsv-01-tst sigue activo. Si sigue bajando, la corrección es real.</div></div>
             <div class="task"><div class="ti">🟠</div><div class="tt"><span class="tl tc">Acción pendiente · Limitar recording group</span>Independientemente de la bajada, revisar si Config está grabando todos los resource types en rsv-01-tst. Limitarlo a tipos críticos puede reducir el coste un 60–70%.</div></div>
@@ -636,29 +653,29 @@ code { font-family:monospace; font-size:11px; background:#e8e6e0; padding:1px 5p
   </div>
 </
 </div><div class="footer">
-  <span>Revisión interna · Equipo infraestructura · 19 mayo 2026</span>
-  <span>Presupuesto mensual: 133.361 € · Presupuesto diario mayo: 4.302 €</span>
+  <span>Revisión Interna · Equipo Infraestructura · 20 mayo 2026</span>
+  <span>Presupuesto Mensual: 133.361$ · Presupuesto Diario Mayo: 4.302$</span>
 </div>
 
 </div>
 <script>
 const BUDGET = 4302;
 const D = [
-  {d:'19/05',dow:'Mar',base:2708,oneoff:0,    pd:-41,  pw:-51,  pwNote:null},
+  {d:'20/05',dow:'Mié',base:4302,oneoff:0,    pd:-8,   pw:-32,  pwNote:null},
+  {d:'19/05',dow:'Mar',base:4699,oneoff:0,    pd:2,    pw:-15,  pwNote:null},
   {d:'18/05',dow:'Lun',base:4587,oneoff:0,    pd:9,    pw:7,    pwNote:null},
   {d:'17/05',dow:'Dom',base:4191,oneoff:0,    pd:2,    pw:36,   pwNote:null},
   {d:'16/05',dow:'Sáb',base:4096,oneoff:0,    pd:-33,  pw:23,   pwNote:null},
   {d:'15/05',dow:'Vie',base:6081,oneoff:0,    pd:-27,  pw:62,   pwNote:null},
-  {d:'14/05',dow:'Jue',base:8305,oneoff:0,    pd:31,   pw:104,  pwNote:null},
-  {d:'13/05',dow:'Mié',base:6332,oneoff:0,    pd:14,   pw:52,   pwNote:null},
+  {d:'14/05',dow:'Jue',base:8304,oneoff:0,    pd:31,   pw:104,  pwNote:null},
+  {d:'13/05',dow:'Mié',base:6332,oneoff:0,    pd:14,   pw:53,   pwNote:null},
   {d:'12/05',dow:'Mar',base:5559,oneoff:0,    pd:30,   pw:41,   pwNote:'vs 05/05 (puntual)'},
   {d:'11/05',dow:'Lun',base:4285,oneoff:0,    pd:39,   pw:25,   pwNote:null},
   {d:'10/05',dow:'Dom',base:3092,oneoff:0,    pd:-7,   pw:31,   pwNote:null},
   {d:'09/05',dow:'Sáb',base:3342,oneoff:0,    pd:-11,  pw:37,   pwNote:null},
   {d:'08/05',dow:'Vie',base:3765,oneoff:0,    pd:-7,   pw:null, pwNote:null},
   {d:'07/05',dow:'Jue',base:4070,oneoff:0,    pd:-2,   pw:31,   pwNote:null},
-  {d:'06/05',dow:'Mié',base:4152,oneoff:0,    pd:5,    pw:44,   pwNote:null},
-  {d:'05/05',dow:'Mar',base:3937,oneoff:19767,pd:null, pw:61,   pwNote:null},
+  {d:'06/05',dow:'Mié',base:4152,oneoff:0,    pd:null, pw:44,   pwNote:null},
 ];
 
 function pill(p, note){
@@ -671,16 +688,16 @@ function pill(p, note){
 
 const tbody = document.getElementById('daily-tbody');
 D.forEach(r=>{
-  const spike=r.base>5000, high=r.base>3500&&!spike;
+  const spike=r.base>BUDGET*1.25, high=r.base>BUDGET&&!spike;
   const pct=((r.base/BUDGET)*100).toFixed(1);
   const pctCls=r.base>BUDGET?'over':'under';
-  const oo=r.oneoff>0?`<span class="oneoff-badge">+${r.oneoff.toLocaleString('es-ES')} € puntual</span>`:'';
+  const oo=r.oneoff>0?`<span class="oneoff-badge">+${r.oneoff.toLocaleString('es-ES')}$ puntual</span>`:'';
   const tr=document.createElement('tr');
-  if(spike) tr.className='spike-row'; else if(high) tr.className='warn-row';
+  if(spike) tr.className='spike-row'; else if(high) tr.className='warn-row'; else tr.className='ok-row';
   tr.innerHTML=`
     <td>${r.d}</td>
     <td style="text-align:center;color:#888780">${r.dow}</td>
-    <td class="cv" style="color:${spike?'#a32d2d':high?'#854f0b':'#1a1a18'}">${r.base.toLocaleString('es-ES')} €${oo}</td>
+    <td class="cv" style="color:${spike?'#a32d2d':high?'#750C5C':'#27500a'}">${r.base.toLocaleString('es-ES')}${oo}$</td>
     <td class="${pctCls}">${pct}%</td>
     <td>${pill(r.pd,null)}</td>
     <td>${pill(r.pw,r.pwNote)}</td>`;
@@ -690,7 +707,7 @@ D.forEach(r=>{
 const CD=[...D].reverse();
 const base=CD.map(r=>r.base);
 const oo=CD.map(r=>r.oneoff);
-const colors=base.map(v=>v>BUDGET?'#e24b4a':v>2800?'#ef9f27':'#750C5C');
+const colors=base.map(v=>v>BUDGET*1.25?'#e24b4a':v>BUDGET?'#750C5C':'#639922');
 new Chart(document.getElementById('dailyChart').getContext('2d'),{
   type:'bar',
   data:{
@@ -705,11 +722,11 @@ new Chart(document.getElementById('dailyChart').getContext('2d'),{
     responsive:true,
     plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{
       if(c.dataset.label==='Cargo puntual'&&c.parsed.y===0)return null;
-      return `  ${c.dataset.label}: ${c.parsed.y.toLocaleString('es-ES')} €`;
+      return `  ${c.dataset.label}: ${c.parsed.y.toLocaleString('es-ES')}$`;
     }}}},
     scales:{
       x:{grid:{display:false},ticks:{font:{size:10},color:'#888780',maxRotation:45}},
-      y:{grid:{color:'#FAF7FB'},stacked:true,ticks:{font:{size:11},color:'#888780',callback:v=>v>=1000?(v/1000).toFixed(0)+'k €':v+'€'}}
+      y:{grid:{color:'#FAF7FB'},stacked:true,ticks:{font:{size:11},color:'#888780',callback:v=>v>=1000?(v/1000).toFixed(0)+'k $':v+'$'}}
     }
   }
 });
